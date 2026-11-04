@@ -1,0 +1,29 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>lilboreal</title><meta name="robots" content="noindex">
+<style>
+*{box-sizing:border-box;margin:0}body{font-family:Inter,system-ui,sans-serif;background:radial-gradient(circle at 20% 0%,#1d2a4a,#07080d 60%);color:#e8ecf5;min-height:100vh}
+.gate{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+.box{background:#11141ccc;border:1px solid #2a3145;padding:36px;border-radius:18px;width:min(360px,90vw);text-align:center;backdrop-filter:blur(10px)}
+h1{font-size:2.6rem;letter-spacing:-.04em;background:linear-gradient(90deg,#7dd3fc,#a78bfa);-webkit-background-clip:text;color:transparent}
+input{width:100%;margin:20px 0 12px;padding:12px 14px;border-radius:10px;border:1px solid #2a3145;background:#0b0d13;color:#fff;font-size:1rem}
+button{width:100%;padding:12px;border:0;border-radius:10px;background:linear-gradient(90deg,#38bdf8,#8b5cf6);color:#fff;font-weight:600;cursor:pointer}
+.err{color:#f87171;height:1em;font-size:.85rem}
+main{display:none;max-width:1000px;margin:0 auto;padding:70px 24px}
+.sub{color:#8b93a7;margin:8px 0 40px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:20px}
+a.card{display:block;text-decoration:none;color:inherit;background:#11141c;border:1px solid #232a3b;border-radius:16px;padding:24px;transition:.2s}
+a.card:hover{transform:translateY(-4px);border-color:#7c83ff;box-shadow:0 10px 30px #6366f133}
+.card h2{font-size:1.2rem;margin:10px 0 6px}.card p{color:#9aa3b8;font-size:.92rem}.card span{font-size:1.8rem}.url{color:#7dd3fc!important;font-size:.8rem!important;margin-top:14px}
+.lock{position:fixed;top:18px;right:18px;width:auto;padding:8px 14px;background:#1b2030}
+</style></head><body>
+<div class="gate" id="gate"><form class="box" id="f"><h1>lilboreal</h1><input type="password" id="pw" placeholder="Password" autofocus><button>Enter</button><p class="err" id="err"></p></form></div>
+<main id="app"><button class="lock" onclick="localStorage.removeItem('lb_unlocked');location.reload()">Lock</button>
+<h1>lilboreal</h1><p class="sub">Everything I've built, in one place.</p><div class="grid">
+<a class="card" href="/picks/"><span>🎯</span><h2>PrizePicks Tracker</h2><p>My picks, wins, and results tracked live.</p><p class="url">lilboreal.github.io/picks</p></a>
+<a class="card" href="/football-stats/"><span>🏈</span><h2>Football Stats Board</h2><p>Live NFL and college rushing and receiving stats from ESPN.</p><p class="url">lilboreal.github.io/football-stats</p></a>
+<a class="card" href="/socal-shine-crm-live/"><span>🧽</span><h2>SoCal Shine CRM</h2><p>Command center for my window cleaning business: jobs, customers, map.</p><p class="url">lilboreal.github.io/socal-shine-crm-live</p></a>
+</div></main>
+<script>
+const H="ce7c9271bc3883d723c5e0c605f7cea5cd79eb63c4d15f7bd23da59e2836e82f";const show=()=>{gate.style.display='none';app.style.display='block'};
+if(localStorage.getItem('lb_unlocked')===H)show();
+f.onsubmit=async e=>{e.preventDefault();const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(pw.value));const h=[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');if(h===H){localStorage.setItem('lb_unlocked',H);show()}else{err.textContent='Wrong password';pw.value=''}};
+</script></body></html>
