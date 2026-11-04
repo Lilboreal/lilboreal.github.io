@@ -17,7 +17,7 @@ h1 em:after{content:"";position:absolute;left:0;right:0;bottom:.06em;height:.12e
 .sub{color:var(--mute);font-size:13px;margin-top:10px}
 .src{font:500 12px "IBM Plex Mono",monospace;color:var(--mute);text-align:right}
 .src b{color:var(--cyan)}
-.stats{display:grid;grid-template-columns:repeat(5,1fr);margin:22px 0;border:2px solid var(--line);border-radius:4px;background:var(--navy)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);margin:22px 0;border:2px solid var(--line);border-radius:4px;background:var(--navy)}
 .stat{padding:16px 18px;border-right:1px solid var(--line)}.stat:last-child{border:0}
 .stat .k{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--mute)}
 .stat .v{font:800 34px/1.1 "Bricolage Grotesque";margin-top:4px}
@@ -60,17 +60,30 @@ tr.dim td{opacity:.5}
 .empty{padding:40px;text-align:center;color:var(--mute)}
 @media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.stat{border-bottom:1px solid var(--line)}
 thead{display:none}table,tbody,tr,td{display:block}tr.row{display:grid;grid-template-columns:auto 1fr auto;gap:2px 10px;padding:12px 0;border-bottom:1px solid var(--line)}
-td{border:0;padding:0}.rk{grid-row:span 3}.nm{grid-column:2/4}.amt,.dl,.st,.ef,.tyc{font-size:12px}.ef{display:none}
+td{border:0;padding:0}.rk{grid-row:span 3}.nm{grid-column:2/4}.amt,.dl,.st,.ef,.tyc{font-size:12px}.ef,.efh{display:none}
 header{grid-template-columns:1fr}.src{text-align:left}}
+.plan{display:grid;grid-template-columns:1fr 1.4fr;gap:18px;margin-bottom:30px}
+.box{background:var(--navy);border:2px solid var(--line);border-radius:4px;padding:16px 18px}
+.box.need{border-color:var(--warm)}.box.need h2{color:var(--warm)}
+.need li{margin:0 0 10px}.need li b{display:block}.need li span{font-size:12px;color:var(--mute)}
+.box ul,.box ol{margin:0;padding-left:18px}
+.nx{list-style:none;padding:0!important}.nx li{display:grid;grid-template-columns:86px 1fr auto;gap:10px;padding:8px 0;border-bottom:1px solid rgba(38,64,127,.6);align-items:baseline}
+.nx li:last-child{border:0}.nx .d{font:500 12px "IBM Plex Mono";color:var(--sky)}.nx .hot .d,.nx li.hot .d{color:var(--warm)}
+.nx a{color:var(--paper);text-decoration:none;font-weight:600}.nx a:hover{color:var(--sky)}.nx .a{font-size:12px;color:var(--mute);text-align:right}
+.flab{font:500 11px "IBM Plex Mono";text-transform:uppercase;letter-spacing:.1em;color:var(--mute);margin-right:4px}
+.chips{align-items:center}
+@media(max-width:760px){.plan{grid-template-columns:1fr}.nx li{grid-template-columns:70px 1fr}.nx .a{grid-column:2;text-align:left}}
 </style></head><body><div class="wrap">
 <header><div><h1>Scholarship <em>Ledger</em></h1><div class="sub">Every award Shepard is chasing, straight from the tracker sheet.</div></div>
 <div class="src" id="src">loading…</div></header>
-<div class="stats" id="stats"></div><div class="bar" id="bar"></div><div class="legend" id="legend"></div>
-<h2>On the clock <small>next 14 days in amber · overdue in red</small></h2><div class="soon" id="soon"></div>
+<div class="stats" id="stats"></div>
+<div class="plan"><div class="box need"><h2>Needs Shepard <small id="needc"></small></h2><ul id="need"></ul></div>
+<div class="box"><h2>Up next by deadline <small>open items · amber = within 14 days</small></h2><ol class="nx" id="next"></ol></div></div>
+<h2>Everything in the tracker</h2>
 <div class="controls"><input type="search" id="q" placeholder="Search name, notes, prompt…">
 <select id="sort"><option value="rank">Sort: rank</option><option value="amt">Sort: amount</option><option value="dl">Sort: deadline</option></select>
-<div class="chips" id="fs"></div><div class="chips" id="ft"></div><div class="chips" id="fe"></div></div>
-<table><thead><tr><th data-k="rank">#</th><th>Scholarship</th><th data-k="amt">Amount</th><th data-k="dl">Deadline</th><th>Effort</th><th>Status</th><th>Type</th></tr></thead><tbody id="tb"></tbody></table>
+<div class="chips" id="fs"></div><div class="chips" id="ft"></div></div>
+<table><thead><tr><th data-k="rank">#</th><th>Scholarship</th><th data-k="amt">Amount</th><th data-k="dl">Deadline</th><th class="efh">Effort</th><th>Status</th><th>Type</th></tr></thead><tbody id="tb"></tbody></table>
 </div>
 <script>
 const ID="1Qg1_OmLcpjHebUBjuGl-kuIUWL4vk-TB5F4owrdcDFI";
@@ -78,34 +91,38 @@ const LIVE=`https://docs.google.com/spreadsheets/d/${ID}/gviz/tq?tqx=out:csv&she
 const ST={won:["Won","var(--ok)"],sub:["Submitted","var(--sub)"],no:["Rejected","var(--no)"],ns:["Not started","var(--sky)"],off:["Dropped / ineligible","var(--mute)"]};
 const $=s=>document.querySelector(s);
 function csv(t){const r=[];let row=[],f="",q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}else if(c=='"')q=true;else if(c==','){row.push(f);f=""}else if(c=='\n'||c=='\r'){if(c=='\r'&&t[i+1]=='\n')i++;row.push(f);r.push(row);row=[];f=""}else f+=c}if(f||row.length){row.push(f);r.push(row)}return r}
-function status(s){s=(s||"").toLowerCase();if(/won|accept|award/.test(s))return"won";if(/denied|reject|not selected/.test(s))return"no";if(/drop|inelig|not submitted|skip/.test(s))return"off";if(/submit|applied|entered/.test(s))return"sub";return"ns"}
+function status(s){s=(s||"").toLowerCase();if(/won|accept|award/.test(s))return"won";if(/denied|reject|not selected/.test(s))return"no";if(/not applied|not started/.test(s))return"ns";if(/drop|inelig|not submitted|skip|removed/.test(s))return"off";if(/submit|applied|entered/.test(s))return"sub";return"ns"}
 function amount(s){const m=(s||"").match(/\$\s?[\d,]+(\.\d+)?\s*[kK]?/g);if(!m)return 0;return Math.max(...m.map(x=>{let n=parseFloat(x.replace(/[$,\s]/g,""));if(/k$/i.test(x.trim()))n*=1e3;return n||0}))}
 const MON={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
 function date(s){s=s||"";let m=s.match(/(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+(\d{1,2}),?\s+(\d{4})/i);if(m)return new Date(+m[3],MON[m[1].toLowerCase()],+m[2]);m=s.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);if(m){let y=+m[3];if(y<100)y+=2000;return new Date(y,m[1]-1,+m[2])}return null}
 function effortKey(e){e=(e||"").toLowerCase();if(!e)return"Unknown";if(/no-essay|very low/.test(e))return"Minimal";if(/^low/.test(e))return"Low";if(/short/.test(e))return"Short essay";if(/medium/.test(e))return"Medium";if(/long|high/.test(e))return"Heavy";return e}
 const fmt=n=>"$"+Math.round(n).toLocaleString();
-let rows=[],F={st:new Set,ty:new Set,ef:new Set},sortK="rank",asc=true;
+let rows=[],F={st:new Set,ty:new Set},sortK="rank",asc=true;
 const today=new Date();today.setHours(0,0,0,0);
-function parse(text){const r=csv(text);const h=r.shift();return r.filter(x=>(x[0]||"").trim()).map((x,i)=>{const nm=x[0].trim();const rm=nm.match(/^(\d+)\.\s*(.*)$/);const d=date(x[2]);const ty=/sweep/i.test(x[8]||x[7]||"")?"SWEEPSTAKES":"JUDGED";return{rank:rm?+rm[1]:i+1,name:rm?rm[2]:nm,amtS:x[1]||"",amt:amount(x[1]),dlS:x[2]||"",dl:d,eff:x[3]||"",efk:effortKey(x[3]),prompt:x[4]||"",link:x[5]||"",stS:x[6]||"Not started",st:status(x[6]),notes:x[7]||"",ty,days:d?Math.round((d-today)/864e5):null}})}
+function parse(text){const r=csv(text);const h=r.shift();return r.filter(x=>(x[0]||"").trim()).map((x,i)=>{const nm=x[0].trim();const rm=nm.match(/^(\d+)\.\s*(.*)$/);const d=date(x[2]);const tr=(x[8]||"").trim().toUpperCase();const ty=tr||(/sweep/i.test(x[7]||"")?"SWEEPSTAKES":"JUDGED");return{rank:rm?+rm[1]:i+1,name:rm?rm[2]:nm,amtS:x[1]||"",amt:amount(x[1]),dlS:x[2]||"",dl:d,eff:x[3]||"",efk:effortKey(x[3]),prompt:x[4]||"",link:x[5]||"",stS:x[6]||"Not started",st:status(x[6]),notes:x[7]||"",ty,days:d?Math.round((d-today)/864e5):null}})}
 function render(){
  const sub=rows.filter(r=>r.st=="sub"||r.st=="won"||r.st=="no");const won=rows.filter(r=>r.st=="won");const dec=rows.filter(r=>r.st=="won"||r.st=="no");
- $("#stats").innerHTML=[["Submitted",sub.length],["$ applied for",fmt(sub.reduce((a,r)=>a+r.amt,0))],["$ won",fmt(won.reduce((a,r)=>a+r.amt,0)),"won"],["Win rate",dec.length?Math.round(won.length/dec.length*100)+"%":"—"],["On the list",rows.length]].map(([k,v,c])=>`<div class="stat"><div class="k">${k}</div><div class="v ${c||""}">${v}</div></div>`).join("");
+ $("#stats").innerHTML=[["Submitted",sub.length],["Won",won.length+(won.length?" · "+fmt(won.reduce((a,r)=>a+r.amt,0)):""),"won"],["$ applied for",fmt(sub.reduce((a,r)=>a+r.amt,0))],["In the tracker",rows.length]].map(([k,v,c])=>`<div class="stat"><div class="k">${k}</div><div class="v ${c||""}">${v}</div></div>`).join("");
  const cnt={};rows.forEach(r=>cnt[r.st]=(cnt[r.st]||0)+1);
- $("#bar").innerHTML=Object.keys(ST).map(k=>cnt[k]?`<i style="width:${cnt[k]/rows.length*100}%;background:${ST[k][1]}" title="${ST[k][0]}: ${cnt[k]}"></i>`:"").join("");
- $("#legend").innerHTML=Object.keys(ST).map(k=>`<span style="--c:${ST[k][1]}">${ST[k][0]} ${cnt[k]||0}</span>`).join("");
- const soon=rows.filter(r=>r.dl&&r.days<=60&&(r.st=="ns"||r.days>=0)&&r.st!="off").sort((a,b)=>a.dl-b.dl).slice(0,18);
- $("#soon").innerHTML=soon.length?soon.map(r=>`<a class="tick ${r.days<0?"late":r.days<=14?"hot":""}" href="${esc(r.link)}" target="_blank" rel="noopener"><div class="d">${r.days<0?Math.abs(r.days)+"d overdue":r.days==0?"today":"in "+r.days+"d"} · ${r.dl.toLocaleDateString("en-US",{month:"short",day:"numeric"})}</div><div class="n">${esc(r.name)}</div><div class="a">${esc(r.amtS)} · ${ST[r.st][0]}</div></a>`).join(""):`<div class="sub">Nothing due in the next 60 days.</div>`;
- chips("#fs","st",Object.keys(ST).map(k=>[k,ST[k][0],cnt[k]||0]));
- const tc={};rows.forEach(r=>tc[r.ty]=(tc[r.ty]||0)+1);chips("#ft","ty",Object.keys(tc).map(k=>[k,k[0]+k.slice(1).toLowerCase(),tc[k]]));
- const ec={};rows.forEach(r=>ec[r.efk]=(ec[r.efk]||0)+1);const eo=["Minimal","Low","Short essay","Medium","Heavy"];chips("#fe","ef",Object.keys(ec).sort((a,b)=>(eo.indexOf(a)+99)%99-(eo.indexOf(b)+99)%99).map(k=>[k,k,ec[k]]));
+ const open=rows.filter(r=>r.st=="ns");
+ const need={};open.forEach(r=>{const t=r.stS+" "+r.notes;let k=null;
+  const m=t.match(/needs shepard[:\-\s]*([^.;]*)/i);if(m)k=m[1].trim()||"Input needed";
+  else if(/(parents'?|family'?s?|household'?s?)[^.;]{0,40}1040|1040[^.;]{0,30}parents/i.test(t))k="Parents' most recent 1040 (first 2 pages, SSN blacked out)";
+  if(k)(need[k]=need[k]||[]).push(r)});
+ const nk=Object.keys(need);$("#needc").textContent=nk.length?nk.length+" item"+(nk.length>1?"s":""):"";
+ $("#need").innerHTML=nk.length?nk.map(k=>`<li><b>${esc(k)}</b><span>For: ${need[k].map(r=>esc(r.name)+(r.dl?" (due "+r.dl.toLocaleDateString("en-US",{month:"short",day:"numeric"})+")":"")).join(", ")}</span></li>`).join(""):`<li><span>Nothing right now. You're clear.</span></li>`;
+ const nx=open.filter(r=>r.dl&&r.days>=0).sort((a,b)=>a.dl-b.dl).slice(0,8);
+ $("#next").innerHTML=nx.length?nx.map(r=>`<li class="${r.days<=14?"hot":""}"><span class="d">${r.dl.toLocaleDateString("en-US",{month:"short",day:"numeric"})} · ${r.days==0?"today":r.days+"d"}</span>${r.link?`<a href="${esc(r.link)}" target="_blank" rel="noopener">${esc(r.name)}</a>`:esc(r.name)}<span class="a">${esc(r.amtS.slice(0,28))}</span></li>`).join(""):`<li>No dated open items.</li>`;
+ $("#fs").innerHTML="";chips("#fs","st",Object.keys(ST).filter(k=>cnt[k]).map(k=>[k,ST[k][0],cnt[k]]));$("#fs").insertAdjacentHTML("afterbegin",'<span class="flab">Status</span>');
+ const tc={};rows.forEach(r=>tc[r.ty]=(tc[r.ty]||0)+1);chips("#ft","ty",Object.keys(tc).map(k=>[k,k[0]+k.slice(1).toLowerCase(),tc[k]]));$("#ft").insertAdjacentHTML("afterbegin",'<span class="flab">Type</span>');
  table()}
 function chips(sel,key,list){$(sel).innerHTML=list.map(([v,l,c])=>`<button class="chip ${F[key].has(v)?"on":""}" data-f="${key}" data-v="${esc(v)}">${esc(l)}<span class="c">${c}</span></button>`).join("")}
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 function table(){const q=$("#q").value.toLowerCase().trim();
- let v=rows.filter(r=>(!F.st.size||F.st.has(r.st))&&(!F.ty.size||F.ty.has(r.ty))&&(!F.ef.size||F.ef.has(r.efk))&&(!q||(r.name+" "+r.notes+" "+r.prompt+" "+r.amtS).toLowerCase().includes(q)));
+ let v=rows.filter(r=>(!F.st.size||F.st.has(r.st))&&(!F.ty.size||F.ty.has(r.ty))&&(!q||(r.name+" "+r.notes+" "+r.prompt+" "+r.amtS).toLowerCase().includes(q)));
  const g={rank:r=>r.rank,amt:r=>-r.amt,dl:r=>r.dl?+r.dl:9e15}[sortK];v.sort((a,b)=>(g(a)-g(b))*(asc?1:-1));
  document.querySelectorAll("th[data-k]").forEach(t=>{t.classList.toggle("s",t.dataset.k==sortK);t.classList.toggle("asc",!asc)});
- $("#tb").innerHTML=v.length?v.map(r=>{const dc=r.dl&&r.st=="ns"?(r.days<0?"late":r.days<=14?"hot":""):"";return`<tr class="row ${r.st=="off"?"dim":""}"><td class="rk">${r.rank}</td><td class="nm">${r.link?`<a href="${esc(r.link)}" target="_blank" rel="noopener">${esc(r.name)}</a>`:esc(r.name)}<div class="nt">${esc(r.prompt&&r.prompt!="None"?r.prompt:r.notes).slice(0,170)}</div></td><td class="amt">${esc(r.amtS||"—")}</td><td class="dl ${dc}">${esc(r.dlS||"—")}</td><td class="ef">${esc(r.eff)}</td><td class="st"><span class="pill" style="--c:${ST[r.st][1]}" title="${esc(r.stS)}">${ST[r.st][0]}</span></td><td class="tyc"><span class="ty ${r.ty[0]}">${r.ty}</span></td></tr>`}).join(""):`<tr><td colspan=7 class="empty">No scholarships match those filters.</td></tr>`}
+ $("#tb").innerHTML=v.length?v.map(r=>{const dc=r.dl&&r.st=="ns"?(r.days<0?"late":r.days<=14?"hot":""):"";return`<tr class="row ${r.st=="off"?"dim":""}"><td class="rk">${r.rank}</td><td class="nm">${r.link?`<a href="${esc(r.link)}" target="_blank" rel="noopener">${esc(r.name)}</a>`:esc(r.name)}<div class="nt">${esc(r.prompt&&r.prompt!="None"?r.prompt:r.notes).slice(0,170)}</div></td><td class="amt">${esc(r.amtS||"—")}</td><td class="dl ${dc}">${esc(r.dlS||"—")}</td><td class="ef">${esc(r.eff)}</td><td class="st"><span class="pill" style="--c:${ST[r.st][1]}" title="${esc(r.stS)}">${ST[r.st][0]}</span></td><td class="tyc"><span class="ty ${r.ty[0]}">${esc(r.ty)}</span></td></tr>`}).join(""):`<tr><td colspan=7 class="empty">No scholarships match those filters.</td></tr>`}
 document.addEventListener("click",e=>{const c=e.target.closest(".chip");if(c){const s=F[c.dataset.f];s.has(c.dataset.v)?s.delete(c.dataset.v):s.add(c.dataset.v);c.classList.toggle("on");table();return}
  const t=e.target.closest("th[data-k]");if(t){if(sortK==t.dataset.k)asc=!asc;else{sortK=t.dataset.k;asc=true}$("#sort").value=sortK;table()}});
 $("#q").oninput=table;$("#sort").onchange=e=>{sortK=e.target.value;asc=true;table()};
