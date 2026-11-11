@@ -15,6 +15,11 @@ h1{font:800 clamp(38px,7vw,78px)/.9 "Bricolage Grotesque",sans-serif;margin:0;le
 h1 em{font-style:normal;color:var(--sky);position:relative}
 h1 em:after{content:"";position:absolute;left:0;right:0;bottom:.06em;height:.12em;background:var(--warm);transform:skew(-12deg);opacity:.9;z-index:-1}
 .sub{color:var(--mute);font-size:13px;margin-top:10px}
+.headr{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.nav{display:flex;gap:6px;flex-wrap:wrap}
+.nav a{color:var(--paper);text-decoration:none;font:600 13px "IBM Plex Sans",sans-serif;padding:8px 14px;border:1.5px solid var(--line);border-radius:99px;min-height:40px;display:inline-flex;align-items:center}
+.nav a:hover{border-color:var(--sky)}
+.nav a.on{background:var(--cobalt);border-color:var(--cobalt)}
 .src{font:500 12px "IBM Plex Mono",monospace;color:var(--mute);text-align:right}
 .src b{color:var(--cyan)}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);margin:22px 0;border:2px solid var(--line);border-radius:4px;background:var(--navy)}
@@ -61,7 +66,7 @@ tr.dim td{opacity:.5}
 @media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.stat{border-bottom:1px solid var(--line)}
 thead{display:none}table,tbody,tr,td{display:block}tr.row{display:grid;grid-template-columns:auto 1fr auto;gap:2px 10px;padding:12px 0;border-bottom:1px solid var(--line)}
 td{border:0;padding:0}.rk{grid-row:span 3}.nm{grid-column:2/4}.amt,.dl,.st,.ef,.tyc{font-size:12px}.ef,.efh{display:none}
-header{grid-template-columns:1fr}.src{text-align:left}}
+header{grid-template-columns:1fr}.headr,.src{align-items:flex-start;text-align:left}}
 .plan{display:grid;grid-template-columns:1fr 1.4fr;gap:18px;margin-bottom:30px}
 .box{background:var(--navy);border:2px solid var(--line);border-radius:4px;padding:16px 18px}
 .box.need{border-color:var(--warm)}.box.need h2{color:var(--warm)}
@@ -75,7 +80,8 @@ header{grid-template-columns:1fr}.src{text-align:left}}
 @media(max-width:760px){.plan{grid-template-columns:1fr}.nx li{grid-template-columns:70px 1fr}.nx .a{grid-column:2;text-align:left}}
 </style></head><body><div class="wrap">
 <header><div><h1>Scholarship <em>Ledger</em></h1><div class="sub">Every award Shepard is chasing, straight from the tracker sheet.</div></div>
-<div class="src" id="src">loading…</div></header>
+<div class="headr"><nav class="nav" aria-label="Scholarship pages"><a href="./" class="on" aria-current="page">Ledger</a><a href="pipeline.html">Pipeline</a></nav>
+<div class="src" id="src">loading...</div></div></header>
 <div class="stats" id="stats"></div>
 <div class="plan"><div class="box need"><h2>Needs Shepard <small id="needc"></small></h2><ul id="need"></ul></div>
 <div class="box"><h2>Up next by deadline <small>open items · amber = within 14 days</small></h2><ol class="nx" id="next"></ol></div></div>
@@ -88,10 +94,10 @@ header{grid-template-columns:1fr}.src{text-align:left}}
 <script>
 const ID="1Qg1_OmLcpjHebUBjuGl-kuIUWL4vk-TB5F4owrdcDFI";
 const LIVE=`https://docs.google.com/spreadsheets/d/${ID}/gviz/tq?tqx=out:csv&sheet=Sheet1`;
-const ST={won:["Won","var(--ok)"],sub:["Submitted","var(--sub)"],no:["Rejected","var(--no)"],ns:["Not started","var(--sky)"],off:["Dropped / ineligible","var(--mute)"]};
+const ST={won:["Won","var(--ok)"],sub:["Submitted","var(--sub)"],no:["Rejected","var(--no)"],ns:["Not started","var(--sky)"],prog:["In progress","var(--warm)"],ready:["College offer","var(--cyan)"],off:["Dropped / ineligible","var(--mute)"]};
 const $=s=>document.querySelector(s);
 function csv(t){const r=[];let row=[],f="",q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}else if(c=='"')q=true;else if(c==','){row.push(f);f=""}else if(c=='\n'||c=='\r'){if(c=='\r'&&t[i+1]=='\n')i++;row.push(f);r.push(row);row=[];f=""}else f+=c}if(f||row.length){row.push(f);r.push(row)}return r}
-function status(s){s=(s||"").toLowerCase();if(/won|accept|award/.test(s))return"won";if(/denied|reject|not selected/.test(s))return"no";if(/not applied|not started/.test(s))return"ns";if(/drop|inelig|not submitted|skip|removed/.test(s))return"off";if(/submit|applied|entered/.test(s))return"sub";return"ns"}
+function status(s){s=(s||"").toLowerCase();if(/college offer/.test(s))return"ready";if((/\bwon\b|\bawarded\b|selected as/.test(s))&&!/acceptance letter|needs admission/.test(s))return"won";if(/denied|reject|not selected/.test(s))return"no";if(/drop|inelig|not submitted|skip|removed|duplicate/.test(s))return"off";if(/not applied|not started/.test(s))return"ns";if(/submit|applied|entered/.test(s))return"sub";if(/in progress|drafted|queued|needs shepard|eligible/.test(s))return"prog";if(/found|^new\b/.test(s)||!s.trim())return"ns";return"ns"}
 function amount(s){const m=(s||"").match(/\$\s?[\d,]+(\.\d+)?\s*[kK]?/g);if(!m)return 0;return Math.max(...m.map(x=>{let n=parseFloat(x.replace(/[$,\s]/g,""));if(/k$/i.test(x.trim()))n*=1e3;return n||0}))}
 const MON={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
 function date(s){s=s||"";let m=s.match(/(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+(\d{1,2}),?\s+(\d{4})/i);if(m)return new Date(+m[3],MON[m[1].toLowerCase()],+m[2]);m=s.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);if(m){let y=+m[3];if(y<100)y+=2000;return new Date(y,m[1]-1,+m[2])}return null}
@@ -104,7 +110,7 @@ function render(){
  const sub=rows.filter(r=>r.st=="sub"||r.st=="won"||r.st=="no");const won=rows.filter(r=>r.st=="won");const dec=rows.filter(r=>r.st=="won"||r.st=="no");
  $("#stats").innerHTML=[["Submitted",sub.length],["Won",won.length+(won.length?" · "+fmt(won.reduce((a,r)=>a+r.amt,0)):""),"won"],["$ applied for",fmt(sub.reduce((a,r)=>a+r.amt,0))],["In the tracker",rows.length]].map(([k,v,c])=>`<div class="stat"><div class="k">${k}</div><div class="v ${c||""}">${v}</div></div>`).join("");
  const cnt={};rows.forEach(r=>cnt[r.st]=(cnt[r.st]||0)+1);
- const open=rows.filter(r=>r.st=="ns");
+ const open=rows.filter(r=>r.st=="ns"||r.st=="prog"||r.st=="ready");
  const need={};open.forEach(r=>{const t=r.stS+" "+r.notes;let k=null;
   const m=t.match(/needs shepard[:\-\s]*([^.;]*)/i);if(m)k=m[1].trim()||"Input needed";
   else if(/(parents'?|family'?s?|household'?s?)[^.;]{0,40}1040|1040[^.;]{0,30}parents/i.test(t))k="Parents' most recent 1040 (first 2 pages, SSN blacked out)";
@@ -113,7 +119,7 @@ function render(){
  $("#need").innerHTML=nk.length?nk.map(k=>`<li><b>${esc(k)}</b><span>For: ${need[k].map(r=>esc(r.name)+(r.dl?" (due "+r.dl.toLocaleDateString("en-US",{month:"short",day:"numeric"})+")":"")).join(", ")}</span></li>`).join(""):`<li><span>Nothing right now. You're clear.</span></li>`;
  const nx=open.filter(r=>r.dl&&r.days>=0).sort((a,b)=>a.dl-b.dl).slice(0,8);
  $("#next").innerHTML=nx.length?nx.map(r=>`<li class="${r.days<=14?"hot":""}"><span class="d">${r.dl.toLocaleDateString("en-US",{month:"short",day:"numeric"})} · ${r.days==0?"today":r.days+"d"}</span>${r.link?`<a href="${esc(r.link)}" target="_blank" rel="noopener">${esc(r.name)}</a>`:esc(r.name)}<span class="a">${esc(r.amtS.slice(0,28))}</span></li>`).join(""):`<li>No dated open items.</li>`;
- $("#fs").innerHTML="";chips("#fs","st",Object.keys(ST).filter(k=>cnt[k]).map(k=>[k,ST[k][0],cnt[k]]));$("#fs").insertAdjacentHTML("afterbegin",'<span class="flab">Status</span>');
+ $("#fs").innerHTML="";chips("#fs","st",["ns","prog","ready","sub","won","no","off"].filter(k=>cnt[k]).map(k=>[k,ST[k][0],cnt[k]]));$("#fs").insertAdjacentHTML("afterbegin",'<span class="flab">Status</span>');
  const tc={};rows.forEach(r=>tc[r.ty]=(tc[r.ty]||0)+1);chips("#ft","ty",Object.keys(tc).map(k=>[k,k[0]+k.slice(1).toLowerCase(),tc[k]]));$("#ft").insertAdjacentHTML("afterbegin",'<span class="flab">Type</span>');
  table()}
 function chips(sel,key,list){$(sel).innerHTML=list.map(([v,l,c])=>`<button class="chip ${F[key].has(v)?"on":""}" data-f="${key}" data-v="${esc(v)}">${esc(l)}<span class="c">${c}</span></button>`).join("")}
@@ -122,7 +128,7 @@ function table(){const q=$("#q").value.toLowerCase().trim();
  let v=rows.filter(r=>(!F.st.size||F.st.has(r.st))&&(!F.ty.size||F.ty.has(r.ty))&&(!q||(r.name+" "+r.notes+" "+r.prompt+" "+r.amtS).toLowerCase().includes(q)));
  const g={rank:r=>r.rank,amt:r=>-r.amt,dl:r=>r.dl?+r.dl:9e15}[sortK];v.sort((a,b)=>(g(a)-g(b))*(asc?1:-1));
  document.querySelectorAll("th[data-k]").forEach(t=>{t.classList.toggle("s",t.dataset.k==sortK);t.classList.toggle("asc",!asc)});
- $("#tb").innerHTML=v.length?v.map(r=>{const dc=r.dl&&r.st=="ns"?(r.days<0?"late":r.days<=14?"hot":""):"";return`<tr class="row ${r.st=="off"?"dim":""}"><td class="rk">${r.rank}</td><td class="nm">${r.link?`<a href="${esc(r.link)}" target="_blank" rel="noopener">${esc(r.name)}</a>`:esc(r.name)}<div class="nt">${esc(r.prompt&&r.prompt!="None"?r.prompt:r.notes).slice(0,170)}</div></td><td class="amt">${esc(r.amtS||"—")}</td><td class="dl ${dc}">${esc(r.dlS||"—")}</td><td class="ef">${esc(r.eff)}</td><td class="st"><span class="pill" style="--c:${ST[r.st][1]}" title="${esc(r.stS)}">${ST[r.st][0]}</span></td><td class="tyc"><span class="ty ${r.ty[0]}">${esc(r.ty)}</span></td></tr>`}).join(""):`<tr><td colspan=7 class="empty">No scholarships match those filters.</td></tr>`}
+ $("#tb").innerHTML=v.length?v.map(r=>{const dc=r.dl&&(r.st=="ns"||r.st=="prog"||r.st=="ready")?(r.days<0?"late":r.days<=14?"hot":""):"";return`<tr class="row ${r.st=="off"?"dim":""}"><td class="rk">${r.rank}</td><td class="nm">${r.link?`<a href="${esc(r.link)}" target="_blank" rel="noopener">${esc(r.name)}</a>`:esc(r.name)}<div class="nt">${esc(r.prompt&&r.prompt!="None"?r.prompt:r.notes).slice(0,170)}</div></td><td class="amt">${esc(r.amtS||"—")}</td><td class="dl ${dc}">${esc(r.dlS||"—")}</td><td class="ef">${esc(r.eff)}</td><td class="st"><span class="pill" style="--c:${ST[r.st][1]}" title="${esc(r.stS)}">${ST[r.st][0]}</span></td><td class="tyc"><span class="ty ${r.ty[0]}">${esc(r.ty)}</span></td></tr>`}).join(""):`<tr><td colspan=7 class="empty">No scholarships match those filters.</td></tr>`}
 document.addEventListener("click",e=>{const c=e.target.closest(".chip");if(c){const s=F[c.dataset.f];s.has(c.dataset.v)?s.delete(c.dataset.v):s.add(c.dataset.v);c.classList.toggle("on");table();return}
  const t=e.target.closest("th[data-k]");if(t){if(sortK==t.dataset.k)asc=!asc;else{sortK=t.dataset.k;asc=true}$("#sort").value=sortK;table()}});
 $("#q").oninput=table;$("#sort").onchange=e=>{sortK=e.target.value;asc=true;table()};

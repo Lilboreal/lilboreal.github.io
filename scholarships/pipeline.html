@@ -1,0 +1,276 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scholarship Pipeline · lilboreal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0a1633;--navy:#0f2150;--deep:#132a63;--cobalt:#2f5bea;--sky:#7cc4ff;--cyan:#3fe0d0;--paper:#eef4ff;--line:#26407f;--mute:#8ea3cf;--warm:#ffb347;
+--ok:#3ddc97;--sub:#ffc857;--no:#ff6b6b;}
+*{box-sizing:border-box}html,body{margin:0}
+body{overflow-x:hidden;background:var(--ink);color:var(--paper);font:15px/1.45 "IBM Plex Sans",system-ui,sans-serif;
+background-image:radial-gradient(circle at 1px 1px,rgba(124,196,255,.09) 1px,transparent 0);background-size:22px 22px}
+a{color:var(--sky)}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 20px 80px}
+header{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:end;border-bottom:2px solid var(--line);padding-bottom:18px}
+h1{font:800 clamp(38px,7vw,78px)/.9 "Bricolage Grotesque",sans-serif;margin:0;letter-spacing:-.03em}
+h1 em{font-style:normal;color:var(--sky);position:relative}
+h1 em:after{content:"";position:absolute;left:0;right:0;bottom:.06em;height:.12em;background:var(--warm);transform:skew(-12deg);opacity:.9;z-index:-1}
+.sub{color:var(--mute);font-size:13px;margin-top:10px}
+.headr{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.src{font:500 12px "IBM Plex Mono",monospace;color:var(--mute);text-align:right}
+.src b{color:var(--cyan)}
+.nav{display:flex;gap:6px;flex-wrap:wrap}
+.nav a{color:var(--paper);text-decoration:none;font:600 13px "IBM Plex Sans",sans-serif;padding:8px 14px;border:1.5px solid var(--line);border-radius:99px;min-height:40px;display:inline-flex;align-items:center}
+.nav a:hover{border-color:var(--sky)}
+.nav a.on{background:var(--cobalt);border-color:var(--cobalt)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);margin:22px 0 18px;border:2px solid var(--line);border-radius:4px;background:var(--navy)}
+.stat{padding:16px 14px;border-right:1px solid var(--line)}.stat:last-child{border:0}
+.stat .k{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--mute)}
+.stat .v{font:800 30px/1.1 "Bricolage Grotesque";margin-top:4px}
+.stat .v.won{color:var(--ok)}.stat .v.hot{color:var(--warm)}
+.pipeline{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 28px}
+.pipe{appearance:none;cursor:pointer;flex:1 1 110px;min-height:72px;text-align:left;background:var(--navy);border:2px solid var(--line);border-radius:4px;color:var(--paper);padding:12px 14px;transition:border-color .12s,transform .12s,background .12s}
+.pipe:hover{border-color:var(--c,var(--sky));transform:translateY(-2px)}
+.pipe.on{background:color-mix(in srgb,var(--c) 16%,var(--navy));border-color:var(--c)}
+.pipe .lab{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mute)}
+.pipe .dot{width:9px;height:9px;border-radius:2px;background:var(--c);flex:none}
+.pipe .n{font:800 26px/1 "Bricolage Grotesque";margin-top:4px}
+.pipe.exit{flex:0 1 140px;opacity:.9}
+.arrow{color:var(--mute);font-size:18px;flex:none;display:none}
+@media(min-width:900px){.pipeline{flex-wrap:nowrap}.pipe{flex:1 1 0}.arrow{display:block}}
+h2{font:800 22px "Bricolage Grotesque";margin:0 0 12px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+h2 small{font:500 12px "IBM Plex Mono";color:var(--mute)}
+.chartbox{display:grid;grid-template-columns:minmax(280px,360px) 1fr;gap:28px;align-items:center;background:var(--navy);border:2px solid var(--line);border-radius:4px;padding:22px 24px;margin-bottom:30px}
+.chartcol{display:flex;flex-direction:column;align-items:center;gap:12px}
+.toggles{display:flex;gap:6px}
+.toggles button{appearance:none;cursor:pointer;font:600 12px "IBM Plex Sans";color:var(--paper);background:transparent;border:1.5px solid var(--line);border-radius:99px;padding:7px 12px;min-height:36px}
+.toggles button.on{background:var(--cobalt);border-color:var(--cobalt)}
+.piewrap{position:relative;width:min(100%,300px);aspect-ratio:1}
+.piewrap svg{width:100%;height:100%;overflow:visible}
+.piewrap path{cursor:pointer;stroke:var(--navy);stroke-width:2;transition:opacity .15s,transform .15s;transform-origin:center}
+.piewrap path:hover{opacity:1;filter:brightness(1.08)}
+.piewrap path.dim{opacity:.28}
+.center{position:absolute;inset:26%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none}
+.center .big{font:800 34px/1 "Bricolage Grotesque"}
+.center .lbl{font-size:12px;color:var(--mute);margin-top:4px}
+.legend{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.legend button{appearance:none;width:100%;cursor:pointer;display:grid;grid-template-columns:12px 1fr auto auto;gap:10px;align-items:center;text-align:left;background:transparent;border:1.5px solid transparent;border-radius:4px;color:var(--paper);padding:8px 10px;min-height:44px}
+.legend button:hover{background:var(--deep)}
+.legend button.on{border-color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
+.legend .sw{width:12px;height:12px;border-radius:2px;background:var(--c)}
+.legend .nm{font-weight:600}
+.legend .ct,.legend .pct{font:500 13px "IBM Plex Mono";color:var(--mute)}
+.legend .pct{min-width:3.4em;text-align:right}
+.hint{font-size:12px;color:var(--mute);margin:8px 0 0}
+.soon{scrollbar-color:var(--line) transparent;display:flex;gap:12px;overflow-x:auto;padding-bottom:10px;margin-bottom:30px;scroll-snap-type:x mandatory}
+.tick{flex:0 0 230px;scroll-snap-align:start;background:var(--deep);border-left:4px solid var(--warm);padding:12px 14px;border-radius:3px;text-decoration:none;color:inherit;transition:transform .15s}
+.tick:hover{transform:translateY(-3px)}
+.tick .d{font:500 12px "IBM Plex Mono";color:var(--warm)}
+.tick .n{font-weight:600;margin:4px 0 2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tick .a{font-size:12px;color:var(--mute)}
+.controls{position:sticky;top:0;z-index:5;background:var(--ink);padding:12px 0;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+input,select{font:inherit;background:var(--navy);color:var(--paper);border:1.5px solid var(--line);border-radius:3px;padding:8px 10px}
+input:focus,select:focus{outline:none;border-color:var(--sky)}
+input[type=search]{flex:1 1 220px}
+.clear{appearance:none;cursor:pointer;font:600 12px "IBM Plex Sans";color:var(--paper);background:transparent;border:1.5px solid var(--line);border-radius:99px;padding:7px 12px;min-height:40px}
+.clear:hover{border-color:var(--sky)}
+.cards{display:grid;grid-template-columns:1fr;gap:10px;margin-top:14px}
+@media(min-width:800px){.cards{grid-template-columns:1fr 1fr}}
+.card{display:grid;grid-template-columns:6px 1fr auto;gap:0 14px;background:var(--navy);border:1.5px solid var(--line);border-radius:4px;padding:0;overflow:hidden;text-decoration:none;color:inherit;min-height:88px}
+.card:hover{border-color:var(--sky)}
+.card .bar{background:var(--c);grid-row:1/4}
+.card .body{padding:12px 0;min-width:0}
+.card .side{padding:12px 14px 12px 0;text-align:right}
+.card .n{font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card .n a{color:var(--paper);text-decoration:none;background:linear-gradient(var(--sky),var(--sky)) 0 100%/0 1.5px no-repeat;transition:background-size .2s}
+.card .n a:hover{background-size:100% 1.5px}
+.card .nt{font-size:12px;color:var(--mute);margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card .amt{font:500 13px "IBM Plex Mono"}
+.card .dl{font-size:12px;color:var(--mute);margin-top:4px}.card .dl.hot{color:var(--warm);font-weight:600}.card .dl.late{color:var(--no)}
+.pill{display:inline-block;font-size:11px;font-weight:600;padding:3px 8px;border-radius:3px;white-space:nowrap;background:color-mix(in srgb,var(--c) 18%,transparent);color:var(--c);border:1px solid color-mix(in srgb,var(--c) 45%,transparent);margin-top:8px}
+.empty{padding:40px;text-align:center;color:var(--mute);border:2px dashed var(--line);border-radius:4px}
+@media(max-width:760px){
+  header,.chartbox{grid-template-columns:1fr}
+  .headr,.src{align-items:flex-start;text-align:left}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .stat{border-bottom:1px solid var(--line)}
+  .stat:nth-child(2n){border-right:0}
+  .stat:nth-last-child(-n+1){border-bottom:0}
+  .center .big{font-size:28px}
+}
+</style></head><body><div class="wrap">
+<header>
+  <div><h1>Scholarship <em>Pipeline</em></h1><div class="sub">Every award in the tracker, organized by where it stands. Tap a slice or a legend row to filter the list.</div></div>
+  <div class="headr">
+    <nav class="nav" aria-label="Scholarship pages"><a href="./">Ledger</a><a href="pipeline.html" class="on" aria-current="page">Pipeline</a></nav>
+    <div class="src" id="src">loading...</div>
+  </div>
+</header>
+<div class="stats" id="stats"></div>
+<div class="pipeline" id="pipe" role="group" aria-label="Application pipeline"></div>
+<div class="chartbox">
+  <div class="chartcol">
+    <div class="toggles" role="group" aria-label="Chart values">
+      <button type="button" id="byCount" class="on">By count</button>
+      <button type="button" id="byDollars">By dollars</button>
+    </div>
+    <div class="piewrap">
+      <svg id="pie" viewBox="0 0 300 300" role="img" aria-label="Pie chart of applications by status"></svg>
+      <div class="center"><div class="big" id="cBig"></div><div class="lbl" id="cLbl"></div></div>
+    </div>
+  </div>
+  <div>
+    <h2>By status <small id="modeHint">share of applications</small></h2>
+    <div class="legend" id="legend"></div>
+    <p class="hint" id="dollarHint" hidden>Awards with no listed dollar amount are left out of the dollar view.</p>
+  </div>
+</div>
+<h2>Due this week <small id="soonc"></small></h2>
+<div class="soon" id="soon"></div>
+<h2 id="listTitle">All applications <small id="listc"></small></h2>
+<div class="controls">
+  <input type="search" id="q" placeholder="Search name, notes, prompt...">
+  <select id="sort">
+    <option value="rank">Sort: rank</option>
+    <option value="dl">Sort: deadline</option>
+    <option value="amt">Sort: amount</option>
+  </select>
+  <button type="button" class="clear" id="clear" hidden>Show all</button>
+</div>
+<div class="cards" id="cards"></div>
+</div>
+<script>
+const ID="1Qg1_OmLcpjHebUBjuGl-kuIUWL4vk-TB5F4owrdcDFI";
+const LIVE=`https://docs.google.com/spreadsheets/d/${ID}/gviz/tq?tqx=out:csv&sheet=Sheet1`;
+const ST={
+  ns:["Not started","var(--sky)"],
+  prog:["In progress","var(--warm)"],
+  ready:["College offer","var(--cyan)"],
+  sub:["Submitted","var(--sub)"],
+  won:["Won","var(--ok)"],
+  no:["Rejected","var(--no)"],
+  off:["Dropped","var(--mute)"]
+};
+const PIPE=["ns","prog","ready","sub","won"];
+const ALL=["ns","prog","ready","sub","won","no","off"];
+const $=s=>document.querySelector(s);
+function csv(t){const r=[];let row=[],f="",q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}else if(c=='"')q=true;else if(c==','){row.push(f);f=""}else if(c=='\n'||c=='\r'){if(c=='\r'&&t[i+1]=='\n')i++;row.push(f);r.push(row);row=[];f=""}else f+=c}if(f||row.length){row.push(f);r.push(row)}return r}
+function status(s){s=(s||"").toLowerCase();
+  if(/college offer/.test(s))return"ready";
+  if((/\bwon\b|\bawarded\b|selected as/.test(s))&&!/acceptance letter|needs admission/.test(s))return"won";
+  if(/denied|reject|not selected/.test(s))return"no";
+  if(/drop|inelig|not submitted|skip|removed|duplicate/.test(s))return"off";
+  if(/not applied|not started/.test(s))return"ns";
+  if(/submit|applied|entered/.test(s))return"sub";
+  if(/in progress|drafted|queued|needs shepard|eligible/.test(s))return"prog";
+  if(/found|^new\b/.test(s)||!s.trim())return"ns";
+  return"ns"}
+function amount(s){const m=(s||"").match(/\$\s?[\d,]+(\.\d+)?\s*[kK]?/g);if(!m)return 0;return Math.max(...m.map(x=>{let n=parseFloat(x.replace(/[$,\s]/g,""));if(/k$/i.test(x.trim()))n*=1e3;return n||0}))}
+const MON={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+function date(s){s=s||"";let m=s.match(/(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+(\d{1,2}),?\s+(\d{4})/i);if(m)return new Date(+m[3],MON[m[1].toLowerCase()],+m[2]);m=s.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);if(m){let y=+m[3];if(y<100)y+=2000;return new Date(y,m[1]-1,+m[2])}return null}
+const fmt=n=>"$"+Math.round(n).toLocaleString();
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+let rows=[],filterSt=null,byDollars=false,sortK="rank";
+const today=new Date();today.setHours(0,0,0,0);
+function parse(text){const r=csv(text);const h=r.shift();return r.filter(x=>(x[0]||"").trim()).map((x,i)=>{const nm=x[0].trim();const rm=nm.match(/^(\d+)\.\s*(.*)$/);const d=date(x[2]);const tr=(x[8]||"").trim().toUpperCase();const ty=tr||(/sweep/i.test(x[7]||"")?"SWEEPSTAKES":"JUDGED");return{rank:rm?+rm[1]:i+1,name:rm?rm[2]:nm,amtS:x[1]||"",amt:amount(x[1]),dlS:x[2]||"",dl:d,eff:x[3]||"",prompt:x[4]||"",link:x[5]||"",stS:x[6]||"Not started",st:status(x[6]),notes:x[7]||"",ty,days:d?Math.round((d-today)/864e5):null}})}
+function totals(){const cnt={},dol={};let zero=0;ALL.forEach(k=>{cnt[k]=0;dol[k]=0});rows.forEach(r=>{cnt[r.st]++;dol[r.st]+=r.amt;if(!r.amt)zero++});return{cnt,dol,zero,n:rows.length,applied:dol.sub+dol.won+dol.no,wonAmt:dol.won}}
+function setFilter(st){filterSt=filterSt===st?null:st;draw()}
+function polar(cx,cy,r,a){return[cx+r*Math.cos(a),cy+r*Math.sin(a)]}
+function donutPath(cx,cy,r0,r1,a0,a1){
+  if(a1-a0>=2*Math.PI-1e-6){
+    return `M ${cx} ${cy-r1} A ${r1} ${r1} 0 1 1 ${cx} ${cy+r1} A ${r1} ${r1} 0 1 1 ${cx} ${cy-r1} M ${cx} ${cy-r0} A ${r0} ${r0} 0 1 0 ${cx} ${cy+r0} A ${r0} ${r0} 0 1 0 ${cx} ${cy-r0}`
+  }
+  const [x0,y0]=polar(cx,cy,r1,a0),[x1,y1]=polar(cx,cy,r1,a1);
+  const [x2,y2]=polar(cx,cy,r0,a1),[x3,y3]=polar(cx,cy,r0,a0);
+  const large=a1-a0>Math.PI?1:0;
+  return `M ${x0} ${y0} A ${r1} ${r1} 0 ${large} 1 ${x1} ${y1} L ${x2} ${y2} A ${r0} ${r0} 0 ${large} 0 ${x3} ${y3} Z`
+}
+function drawChart(T){
+  const svg=$("#pie");svg.innerHTML="";
+  const vals=ALL.map(k=>({k,v:byDollars?T.dol[k]:T.cnt[k],c:ST[k][1],l:ST[k][0]})).filter(x=>x.v>0);
+  const sum=vals.reduce((a,x)=>a+x.v,0)||1;
+  const cx=150,cy=150,r1=132,r0=82;
+  let a=-Math.PI/2;
+  vals.forEach(x=>{
+    const slice=x.v/sum*2*Math.PI, a1=a+slice;
+    const p=document.createElementNS("http://www.w3.org/2000/svg","path");
+    p.setAttribute("d",donutPath(cx,cy,r0,r1,a,a1));
+    p.setAttribute("fill",x.c.replace("var(--sky)","#7cc4ff").replace("var(--warm)","#ffb347").replace("var(--cyan)","#3fe0d0").replace("var(--sub)","#ffc857").replace("var(--ok)","#3ddc97").replace("var(--no)","#ff6b6b").replace("var(--mute)","#8ea3cf"));
+    p.setAttribute("data-st",x.k);
+    p.classList.toggle("dim",filterSt&&filterSt!==x.k);
+    p.setAttribute("aria-label",`${x.l}: ${byDollars?fmt(x.v):x.v} (${Math.round(x.v/sum*100)}%)`);
+    p.addEventListener("click",()=>setFilter(x.k));
+    svg.appendChild(p);
+    a=a1;
+  });
+  if(!vals.length){
+    const c=document.createElementNS("http://www.w3.org/2000/svg","circle");
+    c.setAttribute("cx",cx);c.setAttribute("cy",cy);c.setAttribute("r",r1);c.setAttribute("fill","#132a63");
+    svg.appendChild(c);
+  }
+  const focus=filterSt?ST[filterSt][0]:(byDollars?"listed $":"in the tracker");
+  const big=filterSt?(byDollars?fmt(T.dol[filterSt]):T.cnt[filterSt]):(byDollars?fmt(ALL.reduce((a,k)=>a+T.dol[k],0)):T.n);
+  $("#cBig").textContent=big;
+  $("#cLbl").textContent=focus;
+}
+function drawLegend(T){
+  const total=byDollars?ALL.reduce((a,k)=>a+T.dol[k],0):T.n;
+  const denom=total||1;
+  $("#legend").innerHTML=ALL.filter(k=>T.cnt[k]||k==="won"||k==="no").map(k=>{
+    const v=byDollars?T.dol[k]:T.cnt[k];
+    const pct=total?Math.round(v/denom*100):0;
+    const right=byDollars?fmt(T.dol[k]):T.cnt[k];
+    const sub=byDollars?`${T.cnt[k]} award${T.cnt[k]===1?"":"s"}`:fmt(T.dol[k]);
+    return `<button type="button" class="${filterSt===k?"on":""}" style="--c:${ST[k][1]}" data-st="${k}"><span class="sw"></span><span class="nm">${ST[k][0]}<div style="font:500 11px 'IBM Plex Mono';color:var(--mute);font-weight:500">${sub}</div></span><span class="ct">${right}</span><span class="pct">${pct}%</span></button>`
+  }).join("");
+  $("#legend").onclick=e=>{const b=e.target.closest("button[data-st]");if(b)setFilter(b.dataset.st)};
+  $("#modeHint").textContent=byDollars?"share of listed dollar amounts":"share of applications";
+  $("#dollarHint").hidden=!byDollars||!T.zero;
+  if(byDollars&&T.zero)$("#dollarHint").textContent=`${T.zero} award${T.zero===1?"":"s"} with no listed dollar amount ${T.zero===1?"is":"are"} left out of the dollar view.`;
+}
+function drawPipe(T){
+  const mk=(k,exit)=>`<button type="button" class="pipe ${exit?"exit":""} ${filterSt===k?"on":""}" style="--c:${ST[k][1]}" data-st="${k}"><div class="lab"><span class="dot"></span>${ST[k][0]}</div><div class="n">${T.cnt[k]}</div></button>`;
+  const parts=PIPE.map((k,i)=>(i?`<span class="arrow" aria-hidden="true">→</span>`:"")+mk(k,false));
+  parts.push(mk("off",true),mk("no",true));
+  $("#pipe").innerHTML=parts.join("");
+  $("#pipe").onclick=e=>{const b=e.target.closest("button[data-st]");if(b)setFilter(b.dataset.st)};
+}
+function list(){
+  const q=($("#q").value||"").toLowerCase().trim();
+  let v=rows.filter(r=>(!filterSt||r.st===filterSt)&&(!q||(r.name+" "+r.notes+" "+r.prompt+" "+r.amtS+" "+r.stS).toLowerCase().includes(q)));
+  const g={rank:r=>r.rank,amt:r=>-r.amt,dl:r=>r.dl?+r.dl:9e15}[sortK];
+  v.sort((a,b)=>g(a)-g(b));
+  const title=filterSt?ST[filterSt][0]: "All applications";
+  $("#listTitle").childNodes[0].textContent=title+" ";
+  $("#listc").textContent=v.length+" shown";
+  $("#clear").hidden=!filterSt;
+  $("#cards").innerHTML=v.length?v.map(r=>{
+    const dc=r.dl&&(r.st==="ns"||r.st==="prog"||r.st==="ready")?(r.days<0?"late":r.days<=14?"hot":""):"";
+    const when=r.dl?r.dl.toLocaleDateString("en-US",{month:"short",day:"numeric"})+(r.days!=null?(r.days===0?" · today":r.days<0?" · passed":" · "+r.days+"d"):""):(r.dlS||"No date");
+    const note=(r.prompt&&r.prompt!=="None"?r.prompt:r.notes).slice(0,160);
+    const name=r.link?`<a href="${esc(r.link)}" target="_blank" rel="noopener">${esc(r.name)}</a>`:esc(r.name);
+    return `<article class="card" style="--c:${ST[r.st][1]}"><div class="bar"></div><div class="body"><div class="n">${name}</div><div class="nt">${esc(note)}</div><span class="pill" title="${esc(r.stS)}">${ST[r.st][0]}</span></div><div class="side"><div class="amt">${esc(r.amtS||"See listing")}</div><div class="dl ${dc}">${esc(when)}</div></div></article>`
+  }).join(""):`<div class="empty">No scholarships match those filters.</div>`;
+}
+function draw(){
+  const T=totals();
+  const due=rows.filter(r=>(r.st==="ns"||r.st==="prog"||r.st==="ready")&&r.dl&&r.days>=0&&r.days<=7).sort((a,b)=>a.dl-b.dl);
+  $("#stats").innerHTML=[
+    ["In the tracker",T.n],
+    ["Submitted",T.cnt.sub],
+    ["Applied for",fmt(T.applied)],
+    ["Won",(T.cnt.won?T.cnt.won+" · "+fmt(T.wonAmt):"0"),T.cnt.won?"won":""],
+    ["Due this week",due.length,due.length?"hot":""]
+  ].map(([k,v,c])=>`<div class="stat"><div class="k">${k}</div><div class="v ${c||""}">${v}</div></div>`).join("");
+  drawPipe(T);drawChart(T);drawLegend(T);
+  $("#soonc").textContent=due.length?due.length+" open":"none";
+  $("#soon").innerHTML=due.length?due.map(r=>`<a class="tick" ${r.link?`href="${esc(r.link)}" target="_blank" rel="noopener"`:"href='#cards'"}><div class="d">${r.dl.toLocaleDateString("en-US",{month:"short",day:"numeric"})} · ${r.days===0?"today":r.days+"d"}</div><div class="n">${esc(r.name)}</div><div class="a">${esc(r.amtS||"")} · ${esc(ST[r.st][0])}</div></a>`).join(""):`<div class="tick" style="border-color:var(--line)"><div class="d">Clear</div><div class="n">No open awards are due in the next 7 days.</div></div>`;
+  list();
+}
+$("#byCount").onclick=()=>{byDollars=false;$("#byCount").classList.add("on");$("#byDollars").classList.remove("on");draw()};
+$("#byDollars").onclick=()=>{byDollars=true;$("#byDollars").classList.add("on");$("#byCount").classList.remove("on");draw()};
+$("#q").oninput=list;
+$("#sort").onchange=e=>{sortK=e.target.value;list()};
+$("#clear").onclick=()=>{filterSt=null;draw()};
+(async()=>{let t,live=false;try{const r=await fetch(LIVE+"&_="+Date.now());t=await r.text();if(!r.ok||/^\s*</.test(t))throw 0;live=true}catch(e){t=await (await fetch("data.csv?_="+Date.now())).text()}
+ rows=parse(t);$("#src").innerHTML=live?`<b>● live</b> from Google Sheets<br>${new Date().toLocaleString()}`:`snapshot copy · sheet not public yet<br><a href="https://docs.google.com/spreadsheets/d/${ID}/edit" target="_blank">open sheet</a>`;draw()})();
+</script></body></html>
